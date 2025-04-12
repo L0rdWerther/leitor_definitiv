@@ -1,0 +1,6 @@
+opencv-python
+pillow
+pytesseract
+paddleocr
+mysql-connector-python
+tk
