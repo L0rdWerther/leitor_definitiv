@@ -71,17 +71,30 @@ def adicionar_usuario(cursor, nome, cpf, rg, data_nas, caixa, numero, connection
         secao = 2
     else:
         secao = 3
-    if social == False:
-        cursor.execute("INSERT INTO usuarios (NOME, CPF, RG, CAIXA, SECAO, DATA_NAS, NUMERO, DATA_ADD) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-                       (nome, cpf, rg, caixa, secao, data_nas, numero, data))
-        connection.commit()
-    else:
-        nome_social = 'possui nome social'
-        cursor.execute("INSERT INTO usuarios (NOME, CPF, RG, CAIXA, SECAO, DATA_NAS, NUMERO, DATA_ADD, NOME_SOCIAL) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                       (nome, cpf, rg, caixa, secao, data_nas, numero, data, nome_social))
-        connection.commit()
-        social = False
 
+    # Ensure CPF, CAIXA, and NUMERO are padded with leading zeros if necessary
+    cpf = cpf.zfill(11)
+    caixa = caixa.zfill(6)
+    numero = numero.zfill(10)
+
+    try:
+        if not social:
+            cursor.execute(
+                "INSERT INTO usuarios (NOME, CPF, RG, CAIXA, SECAO, DATA_NAS, NUMERO, DATA_ADD) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                (nome, cpf, rg, caixa, secao, data_nas, numero, data)
+            )
+        else:
+            nome_social = 'Possui nome social'
+            cursor.execute(
+                "INSERT INTO usuarios (NOME, CPF, RG, CAIXA, SECAO, DATA_NAS, NUMERO, DATA_ADD, NOME_SOCIAL) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (nome, cpf, rg, caixa, secao, data_nas, numero, data, nome_social)
+            )
+            social = False
+
+        connection.commit()
+    except mysql.connector.Error as err:
+        print(f"Erro ao inserir dados no banco: {err}")
+        
 # Função para extrair o nome da imagem
 def extrair_nome(imagem, texto_imagem):
     def extrair_nome_texto(texto):
